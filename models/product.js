@@ -2,29 +2,31 @@ const mongodb = require('mongodb');
 const getDb = require('../util/database').getDb;
 
 class Product {
-  constructor(title, price, description, imageUrl, id) {
+  constructor(title, price, description, imageUrl, id, userId) {
     this.title = title;
     this.price = price;
     this.description = description;
     this.imageUrl = imageUrl;
     this._id = id ? new mongodb.ObjectId(id) : null;
+    this.userId = userId;
   }
 
   save() {
     const db = getDb();
     let dbOp;
-    if(this._id) {
+    if (this._id) {
+      // Update the product
       dbOp = db
         .collection('products')
-        .updateOne({_id: this._id}, {$set: this});
+        .updateOne({ _id: this._id }, { $set: this });
     } else {
       dbOp = db.collection('products').insertOne(this);
     }
     return dbOp
-      .then(result => {
+      .then((result) => {
         console.log(result);
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   }
@@ -35,11 +37,11 @@ class Product {
       .collection('products')
       .find()
       .toArray()
-      .then(products => {
-        console.log(products);
+      .then((products) => {
+        console.log('PRODUCTS: ', products);
         return products;
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   }
@@ -48,13 +50,13 @@ class Product {
     const db = getDb();
     return db
       .collection('products')
-      .find({_id: new mongodb.ObjectId(prodId)})
+      .find({ _id: new mongodb.ObjectId(prodId) })
       .next()
-      .then(product => {
-        console.log(product);
+      .then((product) => {
+        console.log('PRODUCT: ', product);
         return product;
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   }
@@ -63,14 +65,13 @@ class Product {
     const db = getDb();
     return db
       .collection('products')
-      .deleteOne({_id: new mongodb.ObjectId(prodId)})
-      .then(result => {
-        console.log('Deleted');
+      .deleteOne({ _id: new mongodb.ObjectId(prodId) })
+      .then((result) => {
+        console.log('DELETED');
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
-
   }
 }
 
